@@ -1,0 +1,46 @@
+services:
+    #define o serviço de banco de dados
+    db:
+        image: postgres:18-alpine
+        #variáveis de ambiente que puxam o que foi configurado no .env
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        #usa a porta 5432 do meu PC e redireciona para a porta 5432 dentro do container
+        ports:
+            - "127.0.0.1:${POSTGRES_PORT}:5432"
+        #volume para persistir os dados caso aconteça algo com o container
+        volumes:
+            - postgres_data:/var/lib/postgresql
+        #informa o estado do banco
+        #pg_isready é uma ferramenta do postgres para verificar se o banco aceita conexões
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+    #define serviço de backend
+    backend:
+        #constrói a imagem do dockerfile na pasta backend
+        build: ./backend
+        #define as variáveis disponíveis dentro do container do backend
+        environment:
+            PGHOST: db
+            PGPORT: "5432"
+            PGDATABASE: ${POSTGRES_DB}
+            PGUSER: ${POSTGRES_USER}
+            PGPASSWORD: ${POSTGRES_PASSWORD}
+        depends_on:
+            db:
+                #faz o compose esperar o healthcheck do banco passar antes de iniciar o backend
+                condition: service_healthy
+        ports:
+            - "127.0.0.1:3000:3000"
+    #define o serviço de frontend
+    frontend:
+        build: ./frontend
+        ports:
+            - "127.0.0.1:5173:5173"
+volumes:
+    postgres_data:
