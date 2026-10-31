@@ -1,7 +1,11 @@
 import express from "express";
 import { pool } from "./database.js";
+import shortLinkRoutes from './routes/shortLinkRoutes.js';
 
 const app = express();
+
+//permite receber o body das requisições em JSON
+app.use(express.json());
 
 //rota para verificar a disponibilidade do servidor
 app.get("/health", (_req, res) => {
@@ -17,5 +21,8 @@ app.get("/health/db", async (_req, res) => {
     res.status(503).json({status: "error", database: "unavailable"});
   }
 });
+
+//Monta as rotas de links curtos sob /api/links
+app.use("/api/links", shortLinkRoutes);
 
 export default app;
