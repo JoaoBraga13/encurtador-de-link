@@ -1,6 +1,7 @@
 import type { RequestHandler } from 'express';
-import { InvalidOriginalUrlError, createShortLink } from '../services/shortLinkService.js';
+import { InvalidOriginalUrlError, createShortLink, listShortLinks } from '../services/shortLinkService.js';
 
+//POST
 //converte a criação do link em uma resposta HTTP.
 export const createShortLinkController: RequestHandler = async (req, res) => {
   try {
@@ -13,5 +14,16 @@ export const createShortLinkController: RequestHandler = async (req, res) => {
     }
 
     res.status(500).json({error: "Não foi possível criar o link"});
+  }
+};
+
+//GET
+//Converte a listagem dos links em uma resposta HTTP
+export const listShortLinksController: RequestHandler = async (_req, res) => {
+  try {
+    const links = await listShortLinks();
+    res.status(200).json(links);
+  } catch {
+    res.status(500).json({error: "Não foi possível listar os links"});
   }
 };

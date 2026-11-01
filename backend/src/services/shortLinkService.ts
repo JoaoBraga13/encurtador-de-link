@@ -58,6 +58,7 @@ function mapRow(row: ShortLinkRow): ShortLink {
   };
 }
 
+//POST
 // Valida a URL, gera um código e persiste o novo link.
 export async function createShortLink(originalUrl: unknown,): Promise<ShortLink> {
     if(typeof originalUrl !== "string") {
@@ -99,4 +100,16 @@ export async function createShortLink(originalUrl: unknown,): Promise<ShortLink>
   }
 
     throw new Error("Não foi possível gerar um código curto");
+}
+
+//GET
+//busca os links cadastrados e converte as linhas para o formato da aplicação
+export async function listShortLinks(): Promise<ShortLink[]> {
+  const result = await pool.query<ShortLinkRow>(
+    `SELECT id, code, original_url, click_count, created_at
+    FROM short_links
+    ORDER BY created_at DESC, id DESC`,
+  );
+
+  return result.rows.map(mapRow);
 }
