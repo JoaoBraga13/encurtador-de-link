@@ -10,6 +10,11 @@ type ShortLinkRow = {
   created_at: Date
 }
 
+//Coluna retornada ao buscar o destino e incrementar os cliques
+type ShortLinkDestinationRow = {
+  original_url: string;
+}
+
 // Formato do link usado pelas camadas da aplicação.
 export type ShortLink = {
   id: string;
@@ -25,6 +30,15 @@ export class InvalidOriginalUrlError extends Error {
   constructor() {
     super("informe uma url absoluta com protocolo HTTP ou HTTPS");
     this.name = "InvalidOriginalUrlError";
+  }
+}
+
+//Erro usado quando o código curto não existe
+export class ShortLinkNotFoundError extends Error {
+  //Define a mensagem e o nome específico do erro.
+  constructor() {
+    super("Link curto não encontrado.");
+    this.name = "ShortLinkNotFoundError";
   }
 }
 
@@ -102,7 +116,7 @@ export async function createShortLink(originalUrl: unknown,): Promise<ShortLink>
     throw new Error("Não foi possível gerar um código curto");
 }
 
-//GET
+//GET /api/links
 //busca os links cadastrados e converte as linhas para o formato da aplicação
 export async function listShortLinks(): Promise<ShortLink[]> {
   const result = await pool.query<ShortLinkRow>(
@@ -112,4 +126,22 @@ export async function listShortLinks(): Promise<ShortLink[]> {
   );
 
   return result.rows.map(mapRow);
+}
+
+//GET /:code
+//Incrementa os cliques e retorna a URL original em uma única operação
+export async function incrementClickAndGetOriginalUrl(code: string,): Promise<string> {
+  const result = await pool.query<ShortLinkDestinationRow>(
+    `UPDATE short_links
+    SET click_count = click_count + 1
+    WHERE code = $1
+    RETURNING original_url`,
+    [code],
+  );
+
+  if (result.rows.length === 0) {
+    throw new ShortLinkNotFoundError();
+  }
+
+  return result.rows[0].original_url;
 }
