@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/health': 'http://backend:3000',
+      '/api/links': 'http://backend:3000',
     },
   },
 })
