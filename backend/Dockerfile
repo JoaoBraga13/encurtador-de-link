@@ -12,7 +12,7 @@ RUN npm ci
 # copia o restando dos arquivos da pasta backend para a pasta de trabalho
 COPY . .
 
-#porta em que o servidor está rodando
+#porta que o servidor está rodando
 EXPOSE 3000
 
 #define o comando executado quando o container executar
