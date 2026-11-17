@@ -8,12 +8,13 @@ Aplicação web para criar links curtos, redirecionar visitantes para as URLs or
 - Backend: Node.js, TypeScript e Express
 - Banco de dados: PostgreSQL
 - Ambiente local: Docker Compose
+- Observabilidade: Grafana (integração planejada para a Fase 4)
 
 ## Estado atual
 
-O ambiente local roda com Docker Compose, que inicia o PostgreSQL, o backend e o frontend. A API oferece as rotas `/health` e `/health/db`; a segunda verifica a conexão com o banco.
+A aplicação permite cadastrar URLs HTTP/HTTPS, listar links curtos, redirecionar para os destinos e contar cliques. A API oferece `POST /api/links`, `GET /api/links` e `GET /:code`, além das rotas de saúde `/health` e `/health/db`.
 
-A criação e o redirecionamento de links ainda serão implementados.
+Os testes do backend cobrem os fluxos da API com PostgreSQL; os testes do frontend verificam a tela com respostas simuladas da API. O Grafana foi escolhido para observabilidade, mas ainda não está configurado; a integração está planejada para a Fase 4.
 
 ## Pré-requisitos
 
@@ -48,6 +49,22 @@ Para verificar a API e a conexão com o banco, use outro terminal:
 A rota do banco também pode ser acessada pelo proxy do frontend:
 
     Invoke-RestMethod http://localhost:5173/health/db
+
+## Testes e builds
+
+Os testes de integração do backend usam PostgreSQL. Em um banco local novo, aplique a migração uma vez antes dos testes. Se a tabela `short_links` já existir no volume local, pule os dois primeiros comandos:
+
+    docker compose up -d db
+    Get-Content .\backend\migrations\001_create_short_links.sql | docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+
+Execute os testes e builds a partir da raiz do repositório:
+
+    docker compose run --build --rm backend npm test
+    npm --prefix frontend test
+    npm --prefix backend run build
+    npm --prefix frontend run build
+
+Os testes do frontend simulam as respostas da API e não precisam do backend em execução.
 
 ## Encerrar os serviços
 
