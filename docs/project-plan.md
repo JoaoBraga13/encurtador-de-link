@@ -59,7 +59,7 @@ O projeto também serve para praticar o desenvolvimento e a operação de uma ap
 | Autenticação | Fora da primeira versão | Reavaliar se o uso ou a exposição mudarem. |
 | Containers | Docker | Usar Docker Compose no ambiente local. |
 | CI/CD | Priorizar GitHub Actions | Jenkins pode ser explorado, mas não é requisito. |
-| Observabilidade | Manter simples, sem Datadog | Avaliar OpenTelemetry se houver um objetivo concreto e a configuração for simples. |
+| Observabilidade | Grafana | Ferramenta escolhida; definir fonte de dados e integração na Fase 4. |
 | Hospedagem | Preferir opção gratuita ou com camada gratuita | Validar as condições quando a etapa de deploy chegar. |
 | Documentação | README e este plano | Criar outros documentos apenas quando forem úteis. |
 
@@ -90,12 +90,14 @@ O projeto também serve para praticar o desenvolvimento e a operação de uma ap
 
 ### Fase 2 — Funcionalidade principal
 
-- Implementar a criação e a persistência de links curtos.
-- Implementar o redirecionamento e a contagem total de cliques.
-- Criar a interface para cadastrar e consultar links e contagens.
-- Cobrir as regras principais com testes.
+- [x] Implementar a criação e a persistência de links curtos.
+- [x] Implementar o redirecionamento e a contagem total de cliques.
+- [x] Criar a interface para cadastrar e consultar links e contagens.
+- [x] Cobrir as regras principais com testes.
 
-**Aceite:** os requisitos funcionais 1 a 7 são atendidos localmente.
+**Validação:** 3 testes de integração do backend e 4 testes de componente do frontend passaram; os builds do backend e do frontend também passaram.
+
+**Aceite:** a implementação cobre os requisitos funcionais 1 a 7. A validação integrada pelo Docker Compose confirmou a criação de dois links, os redirecionamentos corretos, o incremento dos cliques e a persistência dos dados após recriar os containers com o volume preservado.
 
 ### Fase 3 — Qualidade e automação
 
@@ -136,7 +138,7 @@ Mantenha os documentos atualizados e curtos. Acrescente outro documento apenas q
 - **Colisão de códigos:** garantir unicidade no banco e tratar tentativas repetidas.
 - **Cliques simultâneos:** atualizar o contador atomicamente para não perder acessos.
 - **Serviços gratuitos:** confirmar limites e disponibilidade na etapa de deploy.
-- **Observabilidade:** só adicionar ferramentas quando houver uma necessidade concreta.
+- **Observabilidade:** definir fonte de dados e instrumentação para o Grafana durante a Fase 4.
 
 ## 9. Forma de trabalho
 
@@ -161,3 +163,4 @@ Mantenha os documentos atualizados e curtos. Acrescente outro documento apenas q
 | 2026-10-17 | Começar com dois links curtos distintos e contabilizar apenas o total de cliques | Manter a primeira entrega pequena e atender ao uso previsto. |
 | 2026-10-17 | Deixar autenticação e Datadog fora da primeira versão e manter a documentação enxuta | Reduzir o escopo e a complexidade operacional. |
 | 2026-10-17 | Priorizar serviços gratuitos e avaliar OpenTelemetry apenas se a configuração for simples e útil | Controlar custo e complexidade. |
+| 2026-11-16 | Adotar Grafana como ferramenta de observabilidade | Definir fonte de dados e integração durante a Fase 4. |

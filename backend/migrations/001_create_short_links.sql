@@ -1,0 +1,7 @@
+CREATE TABLE short_links (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  code CHAR(7) NOT NULL UNIQUE,
+  original_url TEXT NOT NULL,
+  click_count BIGINT NOT NULL DEFAULT 0 CHECK (click_count >= 0),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
