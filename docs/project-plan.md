@@ -97,7 +97,7 @@ O projeto também serve para praticar o desenvolvimento e a operação de uma ap
 
 **Validação:** 3 testes de integração do backend e 4 testes de componente do frontend passaram; os builds do backend e do frontend também passaram.
 
-**Aceite:** a implementação cobre os requisitos funcionais 1 a 7. A verificação manual integrada pelo Docker Compose ainda está pendente.
+**Aceite:** a implementação cobre os requisitos funcionais 1 a 7. A validação integrada pelo Docker Compose confirmou a criação de dois links, os redirecionamentos corretos, o incremento dos cliques e a persistência dos dados após recriar os containers com o volume preservado.
 
 ### Fase 3 — Qualidade e automação
 
