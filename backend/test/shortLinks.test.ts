@@ -119,6 +119,28 @@ test("rejeita URL com protocolo não permitido", async()  => {
   assert.equal(response.status, 400);
 });
 
+//confirma que body sem originalUrl recebe 400
+test("retorna 400 para body sem originalUrl", async() => {
+  const response = await fetch(`${baseUrl}/api/links`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({}),
+  });
+
+  assert.equal(response.status, 400);
+});
+
+//confirma que url que não é uma url recebe 400
+test("rejeita url que não possui sintaxe de url", async() => {
+  const response = await fetch(`${baseUrl}/api/links`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ originalUrl: "isto-nao-e-uma-url" }),
+  });
+
+  assert.equal(response.status, 400);
+});
+
 //confirma que códigos não cadastrados recebem 404
 test("retorna 404 para código curto inexistente", async() => {
   const response = await fetch(`${baseUrl}/missing-code-for-test`);
