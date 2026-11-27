@@ -1,0 +1,97 @@
+# nome exibido na aba actions do github
+name: CI
+
+# define quando o workflow será executado
+on:
+  #executa quando há push para a branch principal
+  push:
+    branches: [main]
+  #executa quando há um PR para a branch principal
+  pull_request:
+    branches: [main]
+
+#define os jobs do workflow
+jobs:
+  #um job reúne etapas executadas na mesma máquina
+  quality:
+    #usa uma vm linux montada pelo github (github-hosted runner)
+    runs-on: ubuntu-latest
+
+    #inicia serviços auxiliares disponíveis durante o job
+    services:
+      #banco postgresql temporário usado pelos testes de integração
+      postgres:
+        #Imagem do postgresql usado pelo container
+        image: postgres:18-alpine
+        #configurações iniciais do banco dentro do container
+        env:
+          POSTGRES_DB: encurtador_link
+          POSTGRES_USER: encurtador_link
+          POSTGRES_PASSWORD: change_me
+        #disponibiliza a porta do container para a máquina de CI
+        ports:
+          - 5432:5432
+        #aguarda o Postgresql aceitar conexões antes de iniciar as etapas
+        options: >-
+          --health-cmd "pg_isready -U encurtador_link -d encurtador_link"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    #variáveis que os comandos deste job usam para se conectar ao banco
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGDATABASE: encurtador_link
+      PGUSER: encurtador_link
+      PGPASSWORD: change_me
+
+    #Etapas executadas em ordem
+    steps:
+      #baixa o coneúdo do repositório para a máquina de CI
+      - name: baixar código
+        uses: actions/checkout@v4
+
+      #instala NodeJS na versão usada pelo projeto
+      - name: configurar NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      #instala as dependências exatamente conforme o lockfile do backend
+      - name: instalar dependências do backend
+        run: npm ci
+        working-directory: backend
+
+      #instala dependências do frontend
+      - name: instalar dependências do frontend
+        run: npm ci
+        working-directory: frontend
+
+      #Cria a tabela necessária para os testes de integração do backend
+      - name: aplicar migração do banco
+        run: psql -h "$PGHOST" -U "$PGUSER" -d "$PGDATABASE" -f backend/migrations/001_create_short_links.sql
+      #Executa os testes de integração da API
+      - name: testar backend
+        run: npm test
+        working-directory: backend
+
+      #confirma que o typescript do backend compila
+      - name: construir backend
+        run: npm run build
+        working-directory: backend
+
+      #executa os testes da interface do frontend
+      - name: testar frontend
+        run: npm test
+        working-directory: frontend
+
+      #verifica o código do frontend com ESLint
+      - name: verificar lint do frontend
+        run: npm run lint
+        working-directory: frontend
+
+      #confirma que o frontend compila para produção
+      - name: construir frontend
+        run: npm run build
+        working-directory: frontend
